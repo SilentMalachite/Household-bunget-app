@@ -1,0 +1,2956 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>家計簿アプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .file-controls {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #56ab2f, #a8e6cf);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+        }
+
+        .btn-gradient-orange {
+            background: linear-gradient(45deg, #ffecd2, #fcb69f);
+            color: #333;
+        }
+
+        .btn-gradient-pink {
+            background: linear-gradient(45deg, #a8edea, #fed6e3);
+            color: #333;
+        }
+
+        .btn-gradient-teal {
+            background: linear-gradient(45deg, #fdbb2d, #22c1c3);
+            color: white;
+        }
+
+        .btn-gradient-purple {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .form-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group-aligned-end {
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .summary-card.income {
+            border-left: 5px solid #28a745;
+        }
+
+        .summary-card.expense {
+            border-left: 5px solid #dc3545;
+        }
+
+        .summary-card.balance {
+            border-left: 5px solid #007bff;
+        }
+
+        .summary-card h3 {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-card .amount {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-card.income .amount {
+            color: #28a745;
+        }
+
+        .summary-card.expense .amount {
+            color: #dc3545;
+        }
+
+        .summary-card.balance .amount {
+            color: #007bff;
+        }
+
+        /* チャートセクションのスタイル */
+        .chart-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+
+        .chart-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                padding: 10px;
+            }
+        }
+
+        .transactions-section {
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e9ecef;
+        }
+
+        .transactions-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .transactions-header h2 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .transactions-table {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .amount-positive {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .amount-negative {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .delete-btn:focus {
+            outline: 2px solid #dc3545;
+            outline-offset: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #6c757d;
+        }
+
+        .empty-state-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 2000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+
+        .notification.error {
+            background: linear-gradient(45deg, #dc3545, #e83e8c);
+        }
+
+        .notification.warning {
+            background: linear-gradient(45deg, #ffc107, #fd7e14);
+        }
+
+        .notification.info {
+            background: linear-gradient(45deg, #17a2b8, #6f42c1);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .category-item {
+            display: inline-block;
+            background: #f8f9fa;
+            padding: 8px 12px;
+            margin: 4px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #dee2e6;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .category-item:hover {
+            background: #e9ecef;
+        }
+
+        .category-item.income {
+            background: #e7f5e7;
+            border-color: #28a745;
+        }
+
+        .category-item.expense {
+            background: #f8e6e6;
+            border-color: #dc3545;
+        }
+
+        .category-remove {
+            background: none;
+            border: none;
+            color: #dc3545;
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .category-remove:hover {
+            color: #c82333;
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .form-inline input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+        }
+
+        .import-options {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .import-options h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .radio-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .radio-option.selected {
+            border-color: #667eea;
+            background: #e6f3ff;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #fileInput, #excelFileInput {
+            display: none;
+        }
+
+        .loading-spinner {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3000;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .full-width-btn {
+            width: 100%;
+        }
+
+        .margin-right-10 {
+            margin-right: 10px;
+        }
+
+        .modal-title {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .modal-text {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+
+        .modal-section.expense h3 {
+            color: #dc3545;
+        }
+
+        .info-line {
+            line-height: 1.8;
+        }
+
+        .info-line strong {
+            font-weight: 600;
+        }
+
+        .status-success {
+            color: #28a745;
+        }
+
+        .status-warning {
+            color: #6c757d;
+        }
+
+        /* アクセシビリティ改善用のスタイル */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        [aria-hidden="true"] {
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .file-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 10px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><span aria-hidden="true">💰</span> 家計簿アプリ</h1>
+            <p>収入と支出を簡単管理</p>
+        </header>
+
+        <div class="file-controls">
+            <button id="exportExcelBtn" class="btn btn-success"><span aria-hidden="true">📊</span> Excelエクスポート</button>
+            <button id="importExcelBtn" class="btn btn-primary"><span aria-hidden="true">📊</span> Excelインポート</button>
+            <button id="exportJsonBtn" class="btn btn-success"><span aria-hidden="true">📥</span> JSONエクスポート</button>
+            <button id="importJsonBtn" class="btn btn-primary"><span aria-hidden="true">📤</span> JSONインポート</button>
+            <button id="clearDataBtn" class="btn btn-warning"><span aria-hidden="true">🗑️</span> 全データクリア</button>
+            <button id="storageInfoBtn" class="btn btn-gradient-orange"><span aria-hidden="true">💾</span> ストレージ情報</button>
+            <button id="restoreBackupBtn" class="btn btn-gradient-pink"><span aria-hidden="true">🔄</span> バックアップ復元</button>
+            <input type="file" id="fileInput" accept=".json" aria-label="JSONファイル選択">
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls" aria-label="Excelファイル選択">
+        </div>
+
+        <main class="main-content">
+            <div class="form-section">
+                <h2>新しい取引を追加</h2>
+                <form id="transactionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">日付</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">種類</label>
+                            <select id="type" required>
+                                <option value="">選択してください</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">カテゴリ</label>
+                            <select id="category" required>
+                                <option value="">選択してください</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">金額</label>
+                            <input type="number" id="amount" required min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="description">説明</label>
+                            <input type="text" id="description" placeholder="説明を入力してください">
+                        </div>
+                        <div class="form-group form-group-aligned-end">
+                            <button type="button" id="categoryManagerBtn" class="btn btn-gradient-teal full-width-btn margin-right-10"><span aria-hidden="true">⚙️</span> カテゴリ管理</button>
+                        </div>
+                        <div class="form-group form-group-aligned-end">
+                            <button type="submit" class="btn btn-primary full-width-btn"><span aria-hidden="true">✅</span> 追加</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card income">
+                    <h3>総収入</h3>
+                    <div class="amount" id="totalIncome">¥0</div>
+                </div>
+                <div class="summary-card expense">
+                    <h3>総支出</h3>
+                    <div class="amount" id="totalExpense">¥0</div>
+                </div>
+                <div class="summary-card balance">
+                    <h3>残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+
+            <!-- チャートセクションの追加 -->
+            <div class="chart-section">
+                <h2><span aria-hidden="true">📊</span> 月別収支グラフ</h2>
+                <div class="chart-controls">
+                    <button id="chartPrevBtn" class="btn btn-gradient-purple">← 前の期間</button>
+                    <button id="chartCurrentBtn" class="btn btn-gradient-purple">今月を表示</button>
+                    <button id="chartNextBtn" class="btn btn-gradient-purple">次の期間 →</button>
+                    <select id="chartRange" class="btn btn-gradient-purple" style="padding: 10px 20px;">
+                        <option value="6">過去6ヶ月</option>
+                        <option value="12" selected>過去12ヶ月</option>
+                        <option value="24">過去24ヶ月</option>
+                        <option value="all">全期間</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="transactions-section">
+                <div class="transactions-header">
+                    <h2>取引履歴</h2>
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="filterType">種類でフィルタ</label>
+                            <select id="filterType">
+                                <option value="">すべて</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterCategory">カテゴリでフィルタ</label>
+                            <select id="filterCategory">
+                                <option value="">すべて</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterMonth">月でフィルタ</label>
+                            <input type="month" id="filterMonth">
+                        </div>
+                    </div>
+                </div>
+                <div class="transactions-table" role="region" aria-label="取引履歴一覧">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">日付</th>
+                                <th scope="col">種類</th>
+                                <th scope="col">カテゴリ</th>
+                                <th scope="col">説明</th>
+                                <th scope="col">金額</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-state-icon" aria-hidden="true">📊</div>
+                        <h3>まだ取引がありません</h3>
+                        <p>上のフォームから最初の取引を追加してください</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- SheetJS Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <script type="module">
+        (() => {
+            'use strict';
+
+            // 定数定義
+            const CONSTANTS = {
+                TRANSACTION_TYPES: {
+                    INCOME: 'income',
+                    EXPENSE: 'expense'
+                },
+                NOTIFICATION_TYPES: {
+                    SUCCESS: 'success',
+                    ERROR: 'error',
+                    WARNING: 'warning',
+                    INFO: 'info'
+                },
+                STORAGE_KEYS: {
+                    MAIN_DATA: 'householdBudgetData',
+                    BACKUP_DATA: 'householdBudgetBackup'
+                },
+                CSS_CLASSES: {
+                    LOADING_SPINNER: 'loading-spinner',
+                    MODAL_OVERLAY: 'modal-overlay',
+                    MODAL_CONTENT: 'modal-content',
+                    SHOW: 'show',
+                    HIDDEN: 'hidden'
+                },
+                DEFAULTS: {
+                    NOTIFICATION_DURATION: 3000,
+                    DEBOUNCE_DELAY: 500,
+                    AUTO_BACKUP_INTERVAL: 100
+                },
+                INDEXEDDB: {
+                    DB_NAME: 'HouseholdBudgetDB',
+                    VERSION: 1,
+                    STORES: {
+                        TRANSACTIONS: 'transactions',
+                        SETTINGS: 'settings',
+                        BACKUPS: 'backups'
+                    }
+                },
+                CHART: {
+                    COLORS: {
+                        INCOME: 'rgba(40, 167, 69, 0.8)',
+                        EXPENSE: 'rgba(220, 53, 69, 0.8)',
+                        INCOME_BORDER: 'rgba(40, 167, 69, 1)',
+                        EXPENSE_BORDER: 'rgba(220, 53, 69, 1)'
+                    }
+                }
+            };
+
+            // イベントエミッター実装
+            class EventEmitter {
+                constructor() {
+                    this.events = {};
+                }
+
+                on(event, listener) {
+                    if (!this.events[event]) {
+                        this.events[event] = [];
+                    }
+                    this.events[event].push(listener);
+                }
+
+                off(event, listenerToRemove) {
+                    if (!this.events[event]) return;
+                    this.events[event] = this.events[event].filter(listener => listener !== listenerToRemove);
+                }
+
+                emit(event, data) {
+                    if (!this.events[event]) return;
+                    this.events[event].forEach(listener => listener(data));
+                }
+            }
+
+            // IndexedDBマネージャー
+            class IndexedDBManager {
+                constructor() {
+                    this.db = null;
+                    this.dbName = CONSTANTS.INDEXEDDB.DB_NAME;
+                    this.version = CONSTANTS.INDEXEDDB.VERSION;
+                }
+
+                async init() {
+                    return new Promise((resolve, reject) => {
+                        const request = indexedDB.open(this.dbName, this.version);
+
+                        request.onerror = () => {
+                            reject(new Error('IndexedDBの初期化に失敗しました'));
+                        };
+
+                        request.onsuccess = (event) => {
+                            this.db = event.target.result;
+                            resolve();
+                        };
+
+                        request.onupgradeneeded = (event) => {
+                            const db = event.target.result;
+
+                            // トランザクションストア
+                            if (!db.objectStoreNames.contains(CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS)) {
+                                const transactionStore = db.createObjectStore(
+                                    CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS,
+                                    { keyPath: 'id' }
+                                );
+                                transactionStore.createIndex('date', 'date', { unique: false });
+                                transactionStore.createIndex('type', 'type', { unique: false });
+                                transactionStore.createIndex('category', 'category', { unique: false });
+                            }
+
+                            // 設定ストア
+                            if (!db.objectStoreNames.contains(CONSTANTS.INDEXEDDB.STORES.SETTINGS)) {
+                                db.createObjectStore(
+                                    CONSTANTS.INDEXEDDB.STORES.SETTINGS,
+                                    { keyPath: 'key' }
+                                );
+                            }
+
+                            // バックアップストア
+                            if (!db.objectStoreNames.contains(CONSTANTS.INDEXEDDB.STORES.BACKUPS)) {
+                                const backupStore = db.createObjectStore(
+                                    CONSTANTS.INDEXEDDB.STORES.BACKUPS,
+                                    { keyPath: 'id', autoIncrement: true }
+                                );
+                                backupStore.createIndex('timestamp', 'timestamp', { unique: false });
+                            }
+                        };
+                    });
+                }
+
+                async getAllTransactions() {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS], 'readonly');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.getAll();
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(new Error('トランザクションの取得に失敗しました'));
+                    });
+                }
+
+                async addTransaction(transactionData) {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS], 'readwrite');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.add(transactionData);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(new Error('トランザクションの追加に失敗しました'));
+                    });
+                }
+
+                async deleteTransaction(id) {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS], 'readwrite');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.delete(id);
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(new Error('トランザクションの削除に失敗しました'));
+                    });
+                }
+
+                async clearTransactions() {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS], 'readwrite');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.TRANSACTIONS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.clear();
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(new Error('トランザクションのクリアに失敗しました'));
+                    });
+                }
+
+                async saveSettings(settings) {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.SETTINGS], 'readwrite');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.SETTINGS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.put({ key: 'main', ...settings });
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(new Error('設定の保存に失敗しました'));
+                    });
+                }
+
+                async getSettings() {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.SETTINGS], 'readonly');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.SETTINGS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.get('main');
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = () => reject(new Error('設定の取得に失敗しました'));
+                    });
+                }
+
+                async createBackup(backupData) {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.BACKUPS], 'readwrite');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.BACKUPS);
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = store.add({
+                            timestamp: new Date().toISOString(),
+                            data: backupData
+                        });
+                        request.onsuccess = () => resolve();
+                        request.onerror = () => reject(new Error('バックアップの作成に失敗しました'));
+                    });
+                }
+
+                async getLatestBackup() {
+                    const transaction = this.db.transaction([CONSTANTS.INDEXEDDB.STORES.BACKUPS], 'readonly');
+                    const store = transaction.objectStore(CONSTANTS.INDEXEDDB.STORES.BACKUPS);
+                    const index = store.index('timestamp');
+                    
+                    return new Promise((resolve, reject) => {
+                        const request = index.openCursor(null, 'prev');
+                        request.onsuccess = (event) => {
+                            const cursor = event.target.result;
+                            resolve(cursor ? cursor.value : null);
+                        };
+                        request.onerror = () => reject(new Error('バックアップの取得に失敗しました'));
+                    });
+                }
+            }
+
+            // データ管理クラス（IndexedDB対応版）
+            class HouseholdBudgetData extends EventEmitter {
+                constructor() {
+                    super();
+                    this.transactions = [];
+                    this.filteredTransactions = [];
+                    this.idCounter = 1;
+                    this.categories = {
+                        [CONSTANTS.TRANSACTION_TYPES.INCOME]: ['給与', 'ボーナス', '副業', '投資', 'その他収入'],
+                        [CONSTANTS.TRANSACTION_TYPES.EXPENSE]: ['食費', '交通費', '光熱費', '通信費', '娯楽', '医療費', '衣服', '日用品', 'その他支出']
+                    };
+                    this.filters = { type: '', category: '', month: '' };
+                    this.dbManager = new IndexedDBManager();
+                    this.isInitialized = false;
+                    
+                    // パフォーマンス最適化用のキャッシュ
+                    this.summaryCache = null;
+                    this.lastSummaryUpdate = null;
+                }
+
+                async init() {
+                    try {
+                        await this.dbManager.init();
+                        const transactions = await this.dbManager.getAllTransactions();
+                        this.transactions = transactions || [];
+                        
+                        const settings = await this.dbManager.getSettings();
+                        if (settings) {
+                            this.categories = settings.categories || this.categories;
+                            this.filters = settings.filters || this.filters;
+                            this.idCounter = settings.idCounter || this.idCounter;
+                        }
+                        
+                        this.isInitialized = true;
+                        this.emit('dataLoaded');
+                        this.emit('dataChanged');
+                    } catch (error) {
+                        console.error('IndexedDB初期化エラー:', error);
+                        // フォールバック: localStorageから読み込み
+                        this.loadFromLocalStorage();
+                    }
+                }
+
+                loadFromLocalStorage() {
+                    try {
+                        const savedData = localStorage.getItem(CONSTANTS.STORAGE_KEYS.MAIN_DATA);
+                        if (savedData) {
+                            const parsedData = JSON.parse(savedData);
+                            if (Array.isArray(parsedData)) {
+                                this.transactions = parsedData;
+                            } else {
+                                this.fromSaveFormat(parsedData);
+                            }
+                        }
+                        this.isInitialized = true;
+                        this.emit('dataLoaded');
+                        this.emit('dataChanged');
+                    } catch (error) {
+                        console.error('localStorage読み込みエラー:', error);
+                    }
+                }
+
+                generateUniqueId() {
+                    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                        return crypto.randomUUID();
+                    }
+                    const timestamp = Date.now();
+                    const counter = this.idCounter++;
+                    const random = Math.floor(Math.random() * 1000);
+                    return `${timestamp}-${counter}-${random}`;
+                }
+
+                async addTransaction(transactionData) {
+                    const { date, type, category, amount, description } = transactionData;
+                    
+                    if (!date || !type || !category || !amount || amount <= 0) {
+                        throw new Error('すべての必須項目を入力してください（金額は1円以上）');
+                    }
+
+                    const transaction = {
+                        id: this.generateUniqueId(),
+                        date,
+                        type,
+                        category,
+                        amount: parseFloat(amount),
+                        description: description || ''
+                    };
+
+                    this.transactions.push(transaction);
+                    
+                    // IndexedDBに保存
+                    if (this.isInitialized && this.dbManager.db) {
+                        try {
+                            await this.dbManager.addTransaction(transaction);
+                        } catch (error) {
+                            console.error('IndexedDB保存エラー:', error);
+                        }
+                    }
+                    
+                    // キャッシュを無効化
+                    this.invalidateSummaryCache();
+                    
+                    if (this.transactions.length % CONSTANTS.DEFAULTS.AUTO_BACKUP_INTERVAL === 0) {
+                        this.createAutoBackup();
+                    }
+                    
+                    this.emit('transactionAdded', transaction);
+                    this.emit('dataChanged');
+                    
+                    return transaction;
+                }
+
+                async deleteTransaction(id) {
+                    const index = this.transactions.findIndex(t => t.id === id);
+                    if (index !== -1) {
+                        const deleted = this.transactions.splice(index, 1)[0];
+                        
+                        // IndexedDBから削除
+                        if (this.isInitialized && this.dbManager.db) {
+                            try {
+                                await this.dbManager.deleteTransaction(id);
+                            } catch (error) {
+                                console.error('IndexedDB削除エラー:', error);
+                            }
+                        }
+                        
+                        // キャッシュを無効化
+                        this.invalidateSummaryCache();
+                        
+                        this.emit('transactionDeleted', deleted);
+                        this.emit('dataChanged');
+                        return deleted;
+                    }
+                    return null;
+                }
+
+                applyFilters(filters) {
+                    this.filters = { ...filters };
+                    
+                    this.filteredTransactions = this.transactions.filter(transaction => {
+                        const typeMatch = !this.filters.type || transaction.type === this.filters.type;
+                        const categoryMatch = !this.filters.category || transaction.category === this.filters.category;
+                        const monthMatch = !this.filters.month || transaction.date.startsWith(this.filters.month);
+                        
+                        return typeMatch && categoryMatch && monthMatch;
+                    });
+
+                    this.emit('filtersApplied', this.filteredTransactions);
+                }
+
+                // パフォーマンス最適化: キャッシュを使用した集計
+                calculateSummary() {
+                    // キャッシュが有効な場合は使用
+                    if (this.summaryCache && this.lastSummaryUpdate === this.transactions.length) {
+                        return this.summaryCache;
+                    }
+
+                    const income = this.transactions
+                        .filter(t => t.type === CONSTANTS.TRANSACTION_TYPES.INCOME)
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const expense = this.transactions
+                        .filter(t => t.type === CONSTANTS.TRANSACTION_TYPES.EXPENSE)
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    this.summaryCache = {
+                        income,
+                        expense,
+                        balance: income - expense
+                    };
+                    
+                    this.lastSummaryUpdate = this.transactions.length;
+                    
+                    return this.summaryCache;
+                }
+
+                // 月別集計データを取得
+                getMonthlyData(months = 12, endDate = new Date()) {
+                    const monthlyData = new Map();
+                    
+                    // 指定された月数分のデータを初期化
+                    for (let i = months - 1; i >= 0; i--) {
+                        const date = new Date(endDate.getFullYear(), endDate.getMonth() - i, 1);
+                        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                        monthlyData.set(key, { income: 0, expense: 0 });
+                    }
+                    
+                    // トランザクションを集計
+                    this.transactions.forEach(transaction => {
+                        const month = transaction.date.substring(0, 7);
+                        if (monthlyData.has(month)) {
+                            const data = monthlyData.get(month);
+                            if (transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME) {
+                                data.income += transaction.amount;
+                            } else {
+                                data.expense += transaction.amount;
+                            }
+                        }
+                    });
+                    
+                    return monthlyData;
+                }
+
+                invalidateSummaryCache() {
+                    this.summaryCache = null;
+                    this.lastSummaryUpdate = null;
+                }
+
+                addCategory(type, categoryName) {
+                    if (!categoryName.trim()) {
+                        throw new Error('カテゴリ名を入力してください');
+                    }
+                    
+                    if (this.categories[type].includes(categoryName)) {
+                        throw new Error('このカテゴリは既に存在します');
+                    }
+                    
+                    this.categories[type].push(categoryName);
+                    this.emit('categoryAdded', { type, categoryName });
+                    return true;
+                }
+
+                removeCategory(type, categoryName, replacementCategory = null) {
+                    const relatedTransactions = this.transactions.filter(t => 
+                        t.type === type && t.category === categoryName
+                    );
+
+                    if (relatedTransactions.length > 0) {
+                        if (!replacementCategory) {
+                            throw new Error(`このカテゴリは${relatedTransactions.length}件の取引で使用されています。代替カテゴリを指定してください。`);
+                        }
+                        
+                        relatedTransactions.forEach(t => {
+                            t.category = replacementCategory;
+                        });
+                    }
+
+                    this.categories[type] = this.categories[type].filter(c => c !== categoryName);
+                    this.emit('categoryRemoved', { type, categoryName });
+                    this.emit('dataChanged');
+                    return relatedTransactions.length;
+                }
+
+                toSaveFormat() {
+                    return {
+                        transactions: this.transactions,
+                        categories: this.categories,
+                        idCounter: this.idCounter,
+                        filters: this.filters
+                    };
+                }
+
+                fromSaveFormat(data) {
+                    if (data.transactions && Array.isArray(data.transactions)) {
+                        this.transactions = data.transactions;
+                    }
+                    if (data.categories) {
+                        this.categories = data.categories;
+                    }
+                    if (data.idCounter) {
+                        this.idCounter = data.idCounter;
+                    }
+                    if (data.filters) {
+                        this.filters = data.filters;
+                    }
+                    this.invalidateSummaryCache();
+                    this.emit('dataLoaded');
+                    this.emit('dataChanged');
+                }
+
+                async createAutoBackup() {
+                    try {
+                        const backupData = this.toSaveFormat();
+                        
+                        if (this.isInitialized && this.dbManager.db) {
+                            await this.dbManager.createBackup(backupData);
+                        } else {
+                            // フォールバック: localStorageに保存
+                            localStorage.setItem(CONSTANTS.STORAGE_KEYS.BACKUP_DATA, JSON.stringify({
+                                timestamp: new Date().toISOString(),
+                                version: '2.0',
+                                data: backupData
+                            }));
+                        }
+                        
+                        console.log('自動バックアップを作成しました');
+                    } catch (error) {
+                        console.error('自動バックアップの作成に失敗しました:', error);
+                    }
+                }
+
+                async saveSettings() {
+                    if (this.isInitialized && this.dbManager.db) {
+                        try {
+                            await this.dbManager.saveSettings({
+                                categories: this.categories,
+                                filters: this.filters,
+                                idCounter: this.idCounter
+                            });
+                        } catch (error) {
+                            console.error('設定の保存に失敗しました:', error);
+                        }
+                    }
+                }
+            }
+
+            // Debounce実装
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            // Chart.js管理クラス
+            class ChartManager {
+                constructor(dataManager) {
+                    this.dataManager = dataManager;
+                    this.chart = null;
+                    this.currentEndDate = new Date();
+                    this.currentRange = 12;
+                    this.setupChart();
+                    this.bindEvents();
+                }
+
+                setupChart() {
+                    const ctx = document.getElementById('monthlyChart').getContext('2d');
+                    
+                    this.chart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: [],
+                            datasets: [
+                                {
+                                    label: '収入',
+                                    data: [],
+                                    backgroundColor: CONSTANTS.CHART.COLORS.INCOME,
+                                    borderColor: CONSTANTS.CHART.COLORS.INCOME_BORDER,
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: '支出',
+                                    data: [],
+                                    backgroundColor: CONSTANTS.CHART.COLORS.EXPENSE,
+                                    borderColor: CONSTANTS.CHART.COLORS.EXPENSE_BORDER,
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '月別収支',
+                                    font: {
+                                        size: 16
+                                    }
+                                },
+                                legend: {
+                                    position: 'top',
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) {
+                                                label += ': ';
+                                            }
+                                            label += '¥' + context.parsed.y.toLocaleString();
+                                            return label;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 200000, // 最大値を20万円に設定
+                                    ticks: {
+                                        stepSize: 5000, // 5,000円刻み
+                                        callback: function(value) {
+                                            // 5,000円単位で表示
+                                            if (value === 0) {
+                                                return '0';
+                                            } else if (value >= 10000) {
+                                                // 1万円以上は万円単位で表示（例: 5万円、10万円、15万円）
+                                                return (value / 10000) + '万円';
+                                            } else {
+                                                // 1万円未満は円単位で表示（例: 5,000円）
+                                                return value.toLocaleString() + '円';
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                bindEvents() {
+                    document.getElementById('chartPrevBtn').addEventListener('click', () => this.navigateChart(-1));
+                    document.getElementById('chartNextBtn').addEventListener('click', () => this.navigateChart(1));
+                    document.getElementById('chartCurrentBtn').addEventListener('click', () => this.showCurrentMonth());
+                    document.getElementById('chartRange').addEventListener('change', (e) => this.changeRange(e.target.value));
+                    
+                    this.dataManager.on('dataChanged', () => this.updateChart());
+                }
+
+                navigateChart(direction) {
+                    const months = this.currentRange === 'all' ? 12 : parseInt(this.currentRange);
+                    this.currentEndDate = new Date(
+                        this.currentEndDate.getFullYear(),
+                        this.currentEndDate.getMonth() + (direction * months),
+                        1
+                    );
+                    this.updateChart();
+                }
+
+                showCurrentMonth() {
+                    this.currentEndDate = new Date();
+                    this.updateChart();
+                }
+
+                changeRange(range) {
+                    this.currentRange = range;
+                    this.updateChart();
+                }
+
+                updateChart() {
+                    let monthlyData;
+                    let months;
+                    
+                    if (this.currentRange === 'all') {
+                        // 全期間の場合は、最初と最後の取引から期間を計算
+                        const sortedTransactions = [...this.dataManager.transactions].sort((a, b) => 
+                            new Date(a.date) - new Date(b.date)
+                        );
+                        
+                        if (sortedTransactions.length > 0) {
+                            const firstDate = new Date(sortedTransactions[0].date);
+                            const lastDate = new Date(sortedTransactions[sortedTransactions.length - 1].date);
+                            
+                            // 月数を計算
+                            months = (lastDate.getFullYear() - firstDate.getFullYear()) * 12 + 
+                                    (lastDate.getMonth() - firstDate.getMonth()) + 1;
+                            
+                            monthlyData = this.dataManager.getMonthlyData(months, lastDate);
+                        } else {
+                            months = 12;
+                            monthlyData = this.dataManager.getMonthlyData(months, this.currentEndDate);
+                        }
+                    } else {
+                        months = parseInt(this.currentRange);
+                        monthlyData = this.dataManager.getMonthlyData(months, this.currentEndDate);
+                    }
+                    
+                    const labels = [];
+                    const incomeData = [];
+                    const expenseData = [];
+                    
+                    monthlyData.forEach((data, month) => {
+                        const [year, monthNum] = month.split('-');
+                        labels.push(`${year}年${parseInt(monthNum)}月`);
+                        incomeData.push(data.income);
+                        expenseData.push(data.expense);
+                    });
+                    
+                    this.chart.data.labels = labels;
+                    this.chart.data.datasets[0].data = incomeData;
+                    this.chart.data.datasets[1].data = expenseData;
+                    this.chart.update();
+                }
+            }
+
+            // モーダル管理クラス
+            class ModalManager extends EventEmitter {
+                constructor() {
+                    super();
+                    this.modalStack = [];
+                }
+
+                createModal() {
+                    const overlay = document.createElement('div');
+                    overlay.className = CONSTANTS.CSS_CLASSES.MODAL_OVERLAY;
+                    overlay.setAttribute('role', 'dialog');
+                    overlay.setAttribute('aria-modal', 'true');
+                    
+                    const content = document.createElement('div');
+                    content.className = CONSTANTS.CSS_CLASSES.MODAL_CONTENT;
+                    
+                    overlay.appendChild(content);
+                    document.body.appendChild(overlay);
+                    
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        container.setAttribute('aria-hidden', 'true');
+                    }
+                    
+                    return { overlay, content };
+                }
+
+                showModal(modal) {
+                    this.modalStack.push(modal);
+                    setTimeout(() => modal.classList.add(CONSTANTS.CSS_CLASSES.SHOW), 10);
+                    
+                    this.setupFocusTrap(modal);
+                }
+
+                closeModal(modal) {
+                    modal.classList.remove(CONSTANTS.CSS_CLASSES.SHOW);
+                    
+                    const container = document.querySelector('.container');
+                    if (container) {
+                        container.removeAttribute('aria-hidden');
+                    }
+                    
+                    if (modal.escHandler) {
+                        document.removeEventListener('keydown', modal.escHandler);
+                    }
+                    
+                    if (modal.focusTrapHandler) {
+                        document.removeEventListener('keydown', modal.focusTrapHandler);
+                    }
+                    
+                    setTimeout(() => {
+                        if (modal.parentNode) {
+                            document.body.removeChild(modal);
+                        }
+                        this.modalStack = this.modalStack.filter(m => m !== modal);
+                    }, 300);
+                }
+
+                setupFocusTrap(modal) {
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    
+                    if (focusableElements.length === 0) return;
+                    
+                    const firstFocusable = focusableElements[0];
+                    const lastFocusable = focusableElements[focusableElements.length - 1];
+                    
+                    firstFocusable.focus();
+                    
+                    modal.focusTrapHandler = (e) => {
+                        if (e.key !== 'Tab') return;
+                        
+                        if (e.shiftKey) {
+                            if (document.activeElement === firstFocusable) {
+                                e.preventDefault();
+                                lastFocusable.focus();
+                            }
+                        } else {
+                            if (document.activeElement === lastFocusable) {
+                                e.preventDefault();
+                                firstFocusable.focus();
+                            }
+                        }
+                    };
+                    
+                    document.addEventListener('keydown', modal.focusTrapHandler);
+                }
+
+                async showConfirm(title, message, options = {}) {
+                    return new Promise((resolve) => {
+                        const modal = this.createModal();
+                        
+                        modal.content.innerHTML = `
+                            <h2 class="modal-title">${title}</h2>
+                            <p class="modal-text">${message}</p>
+                            <div class="modal-buttons">
+                                <button class="btn btn-secondary" data-action="cancel">キャンセル</button>
+                                <button class="btn btn-primary" data-action="confirm">${options.confirmText || 'OK'}</button>
+                            </div>
+                        `;
+
+                        const handleClose = (result) => {
+                            this.closeModal(modal.overlay);
+                            resolve(result);
+                        };
+
+                        modal.overlay.addEventListener('click', (e) => {
+                            if (e.target === modal.overlay) {
+                                handleClose(false);
+                            }
+                        });
+
+                        modal.content.addEventListener('click', (e) => {
+                            if (e.target.dataset.action === 'confirm') {
+                                handleClose(true);
+                            } else if (e.target.dataset.action === 'cancel') {
+                                handleClose(false);
+                            }
+                        });
+
+                        modal.escHandler = (e) => {
+                            if (e.key === 'Escape') {
+                                handleClose(false);
+                            }
+                        };
+                        document.addEventListener('keydown', modal.escHandler);
+
+                        this.showModal(modal.overlay);
+                    });
+                }
+            }
+
+            // 通知管理クラス
+            class NotificationManager {
+                constructor() {
+                    this.defaultDuration = CONSTANTS.DEFAULTS.NOTIFICATION_DURATION;
+                }
+
+                show(message, type = CONSTANTS.NOTIFICATION_TYPES.INFO, duration = this.defaultDuration) {
+                    const notification = document.createElement('div');
+                    notification.className = `notification ${type}`;
+                    notification.setAttribute('role', 'alert');
+                    
+                    if (message.includes('\n')) {
+                        notification.style.whiteSpace = 'pre-line';
+                    }
+                    notification.textContent = message;
+                    
+                    document.body.appendChild(notification);
+                    
+                    setTimeout(() => notification.classList.add(CONSTANTS.CSS_CLASSES.SHOW), 100);
+                    
+                    setTimeout(() => {
+                        notification.classList.remove(CONSTANTS.CSS_CLASSES.SHOW);
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                document.body.removeChild(notification);
+                            }
+                        }, 300);
+                    }, duration);
+                }
+            }
+
+            // ファイル処理クラス
+            class FileHandler {
+                constructor(dataManager) {
+                    this.dataManager = dataManager;
+                }
+
+                exportToJSON() {
+                    try {
+                        const dataStr = JSON.stringify(this.dataManager.toSaveFormat(), null, 2);
+                        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                        
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(dataBlob);
+                        link.download = `家計簿データ_${new Date().toISOString().split('T')[0]}.json`;
+                        link.click();
+                        
+                        return { success: true };
+                    } catch (error) {
+                        console.error('JSON export error:', error);
+                        return { success: false, error };
+                    }
+                }
+
+                async importFromJSON(file) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const importedData = JSON.parse(e.target.result);
+                                resolve({ success: true, data: importedData });
+                            } catch (error) {
+                                console.error('JSON import error:', error);
+                                resolve({ success: false, error });
+                            }
+                        };
+                        reader.onerror = () => {
+                            resolve({ success: false, error: new Error('ファイルの読み込みに失敗しました') });
+                        };
+                        reader.readAsText(file);
+                    });
+                }
+
+                exportToExcel() {
+                    if (this.dataManager.transactions.length === 0) {
+                        return { success: false, error: new Error('エクスポートするデータがありません') };
+                    }
+
+                    try {
+                        const excelData = this.dataManager.transactions.map(transaction => ({
+                            '日付': transaction.date,
+                            '種類': transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME ? '収入' : '支出',
+                            'カテゴリ': transaction.category,
+                            '説明': transaction.description,
+                            '金額': transaction.amount
+                        }));
+
+                        const summary = this.dataManager.calculateSummary();
+
+                        excelData.push({});
+                        excelData.push({
+                            '日付': 'サマリー',
+                            '種類': '',
+                            'カテゴリ': '',
+                            '説明': '',
+                            '金額': ''
+                        });
+                        excelData.push({
+                            '日付': '',
+                            '種類': '',
+                            'カテゴリ': '総収入',
+                            '説明': '',
+                            '金額': summary.income
+                        });
+                        excelData.push({
+                            '日付': '',
+                            '種類': '',
+                            'カテゴリ': '総支出',
+                            '説明': '',
+                            '金額': summary.expense
+                        });
+                        excelData.push({
+                            '日付': '',
+                            '種類': '',
+                            'カテゴリ': '残高',
+                            '説明': '',
+                            '金額': summary.balance
+                        });
+
+                        const ws = XLSX.utils.json_to_sheet(excelData);
+                        
+                        ws['!cols'] = [
+                            { width: 12 },
+                            { width: 8 },
+                            { width: 15 },
+                            { width: 30 },
+                            { width: 12 }
+                        ];
+
+                        const wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, '家計簿データ');
+
+                        const fileName = `家計簿データ_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        
+                        XLSX.writeFile(wb, fileName);
+                        return { success: true };
+                    } catch (error) {
+                        console.error('Excel export error:', error);
+                        return { success: false, error };
+                    }
+                }
+
+                async importFromExcel(file) {
+                    return new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            try {
+                                const data = new Uint8Array(e.target.result);
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                
+                                const firstSheetName = workbook.SheetNames[0];
+                                const worksheet = workbook.Sheets[firstSheetName];
+                                
+                                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                                
+                                resolve({ success: true, data: jsonData });
+                            } catch (error) {
+                                console.error('Excel import error:', error);
+                                resolve({ success: false, error });
+                            }
+                        };
+                        reader.onerror = () => {
+                            resolve({ success: false, error: new Error('ファイルの読み込みに失敗しました') });
+                        };
+                        reader.readAsArrayBuffer(file);
+                    });
+                }
+            }
+
+            // UI管理クラス（IndexedDB対応版）
+            class UIManager {
+                constructor(dataManager) {
+                    this.dataManager = dataManager;
+                    this.modalManager = new ModalManager();
+                    this.notificationManager = new NotificationManager();
+                    this.fileHandler = new FileHandler(dataManager);
+                    this.chartManager = null; // 後で初期化
+                    
+                    // Debounce処理用
+                    this.debouncedSaveSettings = debounce(() => {
+                        this.dataManager.saveSettings();
+                    }, CONSTANTS.DEFAULTS.DEBOUNCE_DELAY);
+                    
+                    this.setupEventListeners();
+                    this.bindDataEvents();
+                }
+
+                setupEventListeners() {
+                    // フォームイベント
+                    document.getElementById('transactionForm').addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        this.handleTransactionSubmit();
+                    });
+
+                    document.getElementById('type').addEventListener('change', () => {
+                        this.updateCategoryOptions();
+                    });
+
+                    // フィルタイベント
+                    document.getElementById('filterType').addEventListener('change', () => this.handleFilterChange());
+                    document.getElementById('filterCategory').addEventListener('change', () => this.handleFilterChange());
+                    document.getElementById('filterMonth').addEventListener('input', () => this.handleFilterChange());
+
+                    // ボタンイベント
+                    document.getElementById('exportExcelBtn').addEventListener('click', () => this.exportToExcel());
+                    document.getElementById('importExcelBtn').addEventListener('click', () => document.getElementById('excelFileInput').click());
+                    document.getElementById('exportJsonBtn').addEventListener('click', () => this.exportData());
+                    document.getElementById('importJsonBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+                    document.getElementById('clearDataBtn').addEventListener('click', () => this.clearAllData());
+                    document.getElementById('storageInfoBtn').addEventListener('click', () => this.showStorageInfo());
+                    document.getElementById('restoreBackupBtn').addEventListener('click', () => this.restoreFromBackup());
+                    document.getElementById('categoryManagerBtn').addEventListener('click', () => this.showCategoryManager());
+
+                    // ファイル入力イベント
+                    document.getElementById('fileInput').addEventListener('change', (e) => this.importData(e));
+                    document.getElementById('excelFileInput').addEventListener('change', (e) => this.importFromExcel(e));
+
+                    // ページ離脱時の設定保存
+                    window.addEventListener('beforeunload', () => {
+                        if (this.dataManager.isInitialized) {
+                            this.dataManager.saveSettings();
+                        }
+                    });
+                }
+
+                bindDataEvents() {
+                    this.dataManager.on('dataChanged', () => {
+                        this.updateSummary();
+                        this.debouncedSaveSettings();
+                    });
+
+                    this.dataManager.on('transactionAdded', () => {
+                        this.handleFilterChange();
+                        this.clearForm();
+                        this.notificationManager.show('取引を追加しました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    });
+
+                    this.dataManager.on('transactionDeleted', () => {
+                        this.handleFilterChange();
+                        this.notificationManager.show('取引を削除しました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    });
+
+                    this.dataManager.on('filtersApplied', (filteredTransactions) => {
+                        this.displayTransactions(filteredTransactions);
+                    });
+
+                    this.dataManager.on('categoryAdded', ({ categoryName }) => {
+                        this.updateCategoryOptions();
+                        this.updateFilterCategoryOptions();
+                        this.notificationManager.show(`カテゴリ「${categoryName}」を追加しました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    });
+
+                    this.dataManager.on('categoryRemoved', ({ categoryName }) => {
+                        this.updateCategoryOptions();
+                        this.updateFilterCategoryOptions();
+                        this.notificationManager.show(`カテゴリ「${categoryName}」を削除しました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    });
+
+                    this.dataManager.on('dataLoaded', () => {
+                        this.updateCategoryOptions();
+                        this.updateFilterCategoryOptions();
+                        this.updateSummary();
+                        this.handleFilterChange();
+                        
+                        // チャートマネージャーを初期化
+                        if (!this.chartManager) {
+                            this.chartManager = new ChartManager(this.dataManager);
+                        }
+                    });
+                }
+
+                async handleTransactionSubmit() {
+                    const date = document.getElementById('date').value;
+                    const type = document.getElementById('type').value;
+                    const category = document.getElementById('category').value;
+                    const amount = parseFloat(document.getElementById('amount').value);
+                    const description = document.getElementById('description').value;
+
+                    try {
+                        await this.dataManager.addTransaction({ date, type, category, amount, description });
+                    } catch (error) {
+                        this.notificationManager.show(error.message, CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                handleFilterChange() {
+                    const filters = {
+                        type: document.getElementById('filterType').value,
+                        category: document.getElementById('filterCategory').value,
+                        month: document.getElementById('filterMonth').value
+                    };
+                    this.dataManager.applyFilters(filters);
+                }
+
+                updateCategoryOptions() {
+                    const type = document.getElementById('type').value;
+                    const categorySelect = document.getElementById('category');
+                    
+                    categorySelect.innerHTML = '<option value="">選択してください</option>';
+                    
+                    if (type && this.dataManager.categories[type]) {
+                        this.dataManager.categories[type].forEach(category => {
+                            const option = document.createElement('option');
+                            option.value = category;
+                            option.textContent = category;
+                            categorySelect.appendChild(option);
+                        });
+                    }
+                }
+
+                updateFilterCategoryOptions() {
+                    const filterCategorySelect = document.getElementById('filterCategory');
+                    const allCategories = [
+                        ...this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.INCOME], 
+                        ...this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.EXPENSE]
+                    ];
+                    
+                    filterCategorySelect.innerHTML = '<option value="">すべて</option>';
+                    
+                    allCategories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category;
+                        option.textContent = category;
+                        filterCategorySelect.appendChild(option);
+                    });
+                }
+
+                updateSummary() {
+                    const summary = this.dataManager.calculateSummary();
+                    document.getElementById('totalIncome').textContent = this.formatCurrency(summary.income);
+                    document.getElementById('totalExpense').textContent = this.formatCurrency(summary.expense);
+                    document.getElementById('balance').textContent = this.formatCurrency(summary.balance);
+                }
+
+                displayTransactions(transactions) {
+                    const tbody = document.getElementById('transactionsBody');
+                    const emptyState = document.getElementById('emptyState');
+                    
+                    if (transactions.length === 0) {
+                        tbody.innerHTML = '';
+                        emptyState.style.display = 'block';
+                        return;
+                    }
+                    
+                    emptyState.style.display = 'none';
+                    
+                    const fragment = document.createDocumentFragment();
+                    
+                    const sortedTransactions = [...transactions].sort((a, b) => 
+                        new Date(b.date) - new Date(a.date)
+                    );
+                    
+                    sortedTransactions.forEach(transaction => {
+                        const tr = document.createElement('tr');
+                        
+                        const tdDate = document.createElement('td');
+                        tdDate.textContent = this.formatDate(transaction.date);
+                        tr.appendChild(tdDate);
+                        
+                        const tdType = document.createElement('td');
+                        tdType.textContent = transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME ? '収入' : '支出';
+                        tr.appendChild(tdType);
+                        
+                        const tdCategory = document.createElement('td');
+                        tdCategory.textContent = transaction.category;
+                        tr.appendChild(tdCategory);
+                        
+                        const tdDescription = document.createElement('td');
+                        tdDescription.textContent = transaction.description;
+                        tr.appendChild(tdDescription);
+                        
+                        const tdAmount = document.createElement('td');
+                        tdAmount.className = transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME ? 'amount-positive' : 'amount-negative';
+                        tdAmount.textContent = `${transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME ? '+' : '-'}${this.formatCurrency(transaction.amount)}`;
+                        tr.appendChild(tdAmount);
+                        
+                        const tdAction = document.createElement('td');
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.className = 'delete-btn';
+                        deleteBtn.textContent = '削除';
+                        deleteBtn.setAttribute('aria-label', `${this.formatDate(transaction.date)}の取引を削除`);
+                        deleteBtn.addEventListener('click', () => this.deleteTransactionWithConfirm(transaction.id));
+                        tdAction.appendChild(deleteBtn);
+                        tr.appendChild(tdAction);
+                        
+                        fragment.appendChild(tr);
+                    });
+                    
+                    tbody.innerHTML = '';
+                    tbody.appendChild(fragment);
+                }
+
+                formatCurrency(amount) {
+                    return '¥' + amount.toLocaleString();
+                }
+
+                formatDate(dateString) {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('ja-JP');
+                }
+
+                clearForm() {
+                    document.getElementById('transactionForm').reset();
+                    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                    this.updateCategoryOptions();
+                }
+
+                async deleteTransactionWithConfirm(id) {
+                    const confirmed = await this.modalManager.showConfirm(
+                        '取引を削除',
+                        'この取引を削除しますか？',
+                        { confirmText: '削除' }
+                    );
+                    
+                    if (confirmed) {
+                        await this.dataManager.deleteTransaction(id);
+                    }
+                }
+
+                async clearAllData() {
+                    const confirmed = await this.modalManager.showConfirm(
+                        'すべてのデータを削除',
+                        'すべてのデータを削除しますか？この操作は取り消せません。',
+                        { confirmText: '削除' }
+                    );
+                    
+                    if (confirmed) {
+                        this.dataManager.transactions = [];
+                        if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                            await this.dataManager.dbManager.clearTransactions();
+                        }
+                        this.dataManager.invalidateSummaryCache();
+                        this.dataManager.emit('dataChanged');
+                        this.handleFilterChange();
+                        this.notificationManager.show('すべてのデータを削除しました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    }
+                }
+
+                exportToExcel() {
+                    const result = this.fileHandler.exportToExcel();
+                    if (result.success) {
+                        this.notificationManager.show('Excelファイルをエクスポートしました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    } else {
+                        this.notificationManager.show(result.error.message, CONSTANTS.NOTIFICATION_TYPES.WARNING);
+                    }
+                }
+
+                async importFromExcel(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    try {
+                        const importMode = await this.showImportOptions();
+                        if (!importMode) return;
+
+                        this.showLoading('Excelファイルを読み込んでいます...');
+
+                        const result = await this.fileHandler.importFromExcel(file);
+                        
+                        if (!result.success) {
+                            this.hideLoading();
+                            this.notificationManager.show('Excelファイルの読み込みに失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                            return;
+                        }
+
+                        const jsonData = result.data;
+
+                        if (jsonData.length === 0) {
+                            this.hideLoading();
+                            this.notificationManager.show('Excelファイルにデータが含まれていません', CONSTANTS.NOTIFICATION_TYPES.WARNING);
+                            return;
+                        }
+
+                        const firstRow = jsonData[0];
+                        const requiredColumns = ['日付', '種類', 'カテゴリ', '金額'];
+                        const missingColumns = requiredColumns.filter(col => !(col in firstRow));
+                        
+                        if (missingColumns.length > 0) {
+                            this.hideLoading();
+                            await this.modalManager.showConfirm(
+                                'データ形式エラー',
+                                `必要な列が見つかりません: ${missingColumns.join(', ')}\n\n必要な列: 日付、種類、カテゴリ、説明（任意）、金額`,
+                                { confirmText: 'OK' }
+                            );
+                            return;
+                        }
+
+                        this.showLoading('データを処理しています...');
+
+                        const importedTransactions = [];
+                        const allCategories = [
+                            ...this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.INCOME], 
+                            ...this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.EXPENSE]
+                        ];
+                        const invalidRows = [];
+                        
+                        for (let i = 0; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if (!row['日付'] || row['日付'] === 'サマリー' || !row['種類'] || !row['金額']) {
+                                continue;
+                            }
+
+                            const transaction = {
+                                date: DateParser.formatDateForInput(row['日付']),
+                                type: row['種類'] === '収入' ? CONSTANTS.TRANSACTION_TYPES.INCOME : CONSTANTS.TRANSACTION_TYPES.EXPENSE,
+                                category: row['カテゴリ'] || '',
+                                description: row['説明'] || '',
+                                amount: parseFloat(row['金額']) || 0
+                            };
+
+                            if (!transaction.date) {
+                                invalidRows.push(`行${i + 2}: 日付形式が正しくありません`);
+                                continue;
+                            }
+                            
+                            if (transaction.type !== CONSTANTS.TRANSACTION_TYPES.INCOME && transaction.type !== CONSTANTS.TRANSACTION_TYPES.EXPENSE) {
+                                invalidRows.push(`行${i + 2}: 種類は「収入」または「支出」である必要があります`);
+                                continue;
+                            }
+                            
+                            if (transaction.amount <= 0) {
+                                invalidRows.push(`行${i + 2}: 金額は1円以上である必要があります`);
+                                continue;
+                            }
+
+                            if (transaction.category && !allCategories.includes(transaction.category)) {
+                                this.hideLoading();
+                                const shouldAdd = await this.modalManager.showConfirm(
+                                    'カテゴリを追加',
+                                    `新しいカテゴリ「${transaction.category}」を追加しますか？`,
+                                    { confirmText: '追加' }
+                                );
+                                this.showLoading('データを処理しています...');
+                                
+                                if (shouldAdd) {
+                                    this.dataManager.categories[transaction.type].push(transaction.category);
+                                    allCategories.push(transaction.category);
+                                } else {
+                                    transaction.category = transaction.type === CONSTANTS.TRANSACTION_TYPES.INCOME ? 'その他収入' : 'その他支出';
+                                }
+                            }
+                            
+                            if (transaction.category) {
+                                importedTransactions.push(transaction);
+                            }
+                        }
+
+                        this.hideLoading();
+
+                        if (invalidRows.length > 0) {
+                            const errorMessage = `以下の行にエラーがありました:\n\n${invalidRows.slice(0, 5).join('\n')}${invalidRows.length > 5 ? `\n...他${invalidRows.length - 5}件のエラー` : ''}`;
+                            await this.modalManager.showConfirm(
+                                'インポートエラー',
+                                errorMessage,
+                                { confirmText: 'OK' }
+                            );
+                        }
+
+                        if (importedTransactions.length === 0) {
+                            this.notificationManager.show('インポート可能なデータが見つかりませんでした', CONSTANTS.NOTIFICATION_TYPES.WARNING);
+                            return;
+                        }
+
+                        if (importMode === 'add') {
+                            for (const t of importedTransactions) {
+                                await this.dataManager.addTransaction(t);
+                            }
+                            this.notificationManager.show(`${importedTransactions.length}件のデータを追加しました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                        } else {
+                            await this.dataManager.createAutoBackup();
+                            this.dataManager.transactions = [];
+                            if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                                await this.dataManager.dbManager.clearTransactions();
+                            }
+                            for (const t of importedTransactions) {
+                                await this.dataManager.addTransaction(t);
+                            }
+                            this.notificationManager.show(`${importedTransactions.length}件のデータをインポートしました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                        }
+
+                    } catch (error) {
+                        this.hideLoading();
+                        console.error('Import error:', error);
+                        this.notificationManager.show('インポートに失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                exportData() {
+                    const result = this.fileHandler.exportToJSON();
+                    if (result.success) {
+                        this.notificationManager.show('JSONファイルをエクスポートしました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                    } else {
+                        this.notificationManager.show('JSONエクスポートに失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                async importData(event) {
+                    const file = event.target.files[0];
+                    if (!file) return;
+
+                    try {
+                        const importMode = await this.showImportOptions();
+                        if (!importMode) return;
+
+                        const result = await this.fileHandler.importFromJSON(file);
+                        
+                        if (!result.success) {
+                            this.notificationManager.show('ファイルの読み込みに失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                            return;
+                        }
+
+                        const importedData = result.data;
+                        
+                        if (Array.isArray(importedData)) {
+                            const validTransactions = importedData.filter(t => 
+                                t.date && t.type && t.category && t.amount > 0
+                            );
+                            
+                            if (importMode === 'add') {
+                                for (const t of validTransactions) {
+                                    await this.dataManager.addTransaction(t);
+                                }
+                                this.notificationManager.show(`${validTransactions.length}件のデータを追加しました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                            } else {
+                                await this.dataManager.createAutoBackup();
+                                this.dataManager.transactions = [];
+                                if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                                    await this.dataManager.dbManager.clearTransactions();
+                                }
+                                for (const t of validTransactions) {
+                                    await this.dataManager.addTransaction(t);
+                                }
+                                this.notificationManager.show('データをインポートしました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                            }
+                            
+                        } else if (importedData.transactions || importedData.data) {
+                            const sourceData = importedData.data || importedData;
+                            
+                            if (importMode === 'add') {
+                                if (sourceData.transactions) {
+                                    for (const t of sourceData.transactions) {
+                                        await this.dataManager.addTransaction(t);
+                                    }
+                                }
+                                
+                                if (sourceData.categories) {
+                                    Object.keys(sourceData.categories).forEach(type => {
+                                        if (this.dataManager.categories[type]) {
+                                            sourceData.categories[type].forEach(cat => {
+                                                if (!this.dataManager.categories[type].includes(cat)) {
+                                                    this.dataManager.categories[type].push(cat);
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                                
+                                this.notificationManager.show(`${sourceData.transactions?.length || 0}件のデータを追加しました`, CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                            } else {
+                                await this.dataManager.createAutoBackup();
+                                this.dataManager.fromSaveFormat(sourceData);
+                                this.notificationManager.show('データをインポートしました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                            }
+                        } else {
+                            this.notificationManager.show('無効なファイル形式です', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                            return;
+                        }
+                        
+                        setTimeout(() => {
+                            document.getElementById('filterType').value = this.dataManager.filters.type || '';
+                            document.getElementById('filterCategory').value = this.dataManager.filters.category || '';
+                            document.getElementById('filterMonth').value = this.dataManager.filters.month || '';
+                        }, 100);
+                        
+                    } catch (error) {
+                        console.error('Import error:', error);
+                        this.notificationManager.show('インポートに失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                showCategoryManager() {
+                    const modal = this.modalManager.createModal();
+                    const categoryManagerUI = new CategoryManagerUI(this.dataManager, modal, this);
+                    categoryManagerUI.render();
+                    this.modalManager.showModal(modal.overlay);
+                }
+
+                async showStorageInfo() {
+                    try {
+                        const dataSize = JSON.stringify(this.dataManager.transactions).length;
+                        const totalRecords = this.dataManager.transactions.length;
+                        
+                        let storageInfo = '';
+                        
+                        if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                            // IndexedDBの使用状況
+                            if ('storage' in navigator && 'estimate' in navigator.storage) {
+                                const estimate = await navigator.storage.estimate();
+                                const usage = estimate.usage || 0;
+                                const quota = estimate.quota || 0;
+                                storageInfo = `
+                                    <p><span aria-hidden="true">💾</span> <strong>IndexedDB使用量:</strong> ${(usage / 1024 / 1024).toFixed(2)} MB / ${(quota / 1024 / 1024 / 1024).toFixed(2)} GB</p>
+                                    <p><span aria-hidden="true">📊</span> <strong>使用率:</strong> ${((usage / quota) * 100).toFixed(2)}%</p>
+                                `;
+                            } else {
+                                storageInfo = '<p><span aria-hidden="true">💾</span> <strong>ストレージ:</strong> IndexedDB使用中</p>';
+                            }
+                        } else {
+                            // localStorageの使用状況
+                            let totalSize = 0;
+                            for (let key in localStorage) {
+                                if (localStorage.hasOwnProperty(key)) {
+                                    totalSize += localStorage[key].length;
+                                }
+                            }
+                            storageInfo = `<p><span aria-hidden="true">💾</span> <strong>localStorage使用量:</strong> ${(totalSize / 1024).toFixed(2)} KB</p>`;
+                        }
+                        
+                        const modal = this.modalManager.createModal();
+                        modal.content.innerHTML = `
+                            <h2 class="modal-title"><span aria-hidden="true">💾</span> ストレージ情報</h2>
+                            <div class="info-line">
+                                <p><span aria-hidden="true">🗃️</span> <strong>取引件数:</strong> ${totalRecords}件</p>
+                                <p><span aria-hidden="true">📦</span> <strong>データサイズ:</strong> ${(dataSize / 1024).toFixed(2)} KB</p>
+                                ${storageInfo}
+                                <p><span aria-hidden="true">🔄</span> <strong>最終更新:</strong> ${new Date().toLocaleString('ja-JP')}</p>
+                                <p class="${totalRecords > 0 ? 'status-success' : 'status-warning'}">
+                                    ${totalRecords > 0 ? '<span aria-hidden="true">✅</span> データは自動保存されています' : '<span aria-hidden="true">📝</span> まだデータがありません'}
+                                </p>
+                            </div>
+                            <div class="modal-buttons">
+                                <button class="btn btn-primary" data-action="close">閉じる</button>
+                            </div>
+                        `;
+                        
+                        modal.content.addEventListener('click', (e) => {
+                            if (e.target.dataset.action === 'close') {
+                                this.modalManager.closeModal(modal.overlay);
+                            }
+                        });
+                        
+                        modal.escHandler = (e) => {
+                            if (e.key === 'Escape') {
+                                this.modalManager.closeModal(modal.overlay);
+                            }
+                        };
+                        document.addEventListener('keydown', modal.escHandler);
+                        
+                        this.modalManager.showModal(modal.overlay);
+                    } catch (error) {
+                        this.notificationManager.show('ストレージ情報の取得に失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                async restoreFromBackup() {
+                    try {
+                        let backup = null;
+                        
+                        if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                            // IndexedDBからバックアップを取得
+                            backup = await this.dataManager.dbManager.getLatestBackup();
+                        } else {
+                            // localStorageからバックアップを取得
+                            const backupData = localStorage.getItem(CONSTANTS.STORAGE_KEYS.BACKUP_DATA);
+                            if (backupData) {
+                                backup = JSON.parse(backupData);
+                            }
+                        }
+                        
+                        if (!backup || !backup.data) {
+                            this.notificationManager.show('バックアップデータが見つかりません', CONSTANTS.NOTIFICATION_TYPES.WARNING);
+                            return;
+                        }
+                        
+                        const backupDate = new Date(backup.timestamp).toLocaleString('ja-JP');
+                        const transactions = backup.data.transactions || [];
+                        
+                        const confirmed = await this.modalManager.showConfirm(
+                            'バックアップからの復元',
+                            `バックアップからデータを復元しますか？\n\nバックアップ日時: ${backupDate}\n件数: ${transactions.length}件\n\n現在のデータは上書きされます。`,
+                            { confirmText: '復元' }
+                        );
+                        
+                        if (confirmed) {
+                            this.dataManager.fromSaveFormat(backup.data);
+                            if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                                // IndexedDBに保存
+                                await this.dataManager.dbManager.clearTransactions();
+                                for (const t of this.dataManager.transactions) {
+                                    await this.dataManager.dbManager.addTransaction(t);
+                                }
+                                await this.dataManager.saveSettings();
+                            }
+                            this.notificationManager.show('バックアップからデータを復元しました', CONSTANTS.NOTIFICATION_TYPES.SUCCESS);
+                        }
+                    } catch (error) {
+                        console.error('バックアップからの復元に失敗しました:', error);
+                        this.notificationManager.show('バックアップからの復元に失敗しました', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                async showImportOptions() {
+                    return new Promise((resolve) => {
+                        const modal = this.modalManager.createModal();
+                        
+                        modal.content.innerHTML = `
+                            <h2 class="modal-title"><span aria-hidden="true">📥</span> インポート方法を選択</h2>
+                            <div class="radio-group">
+                                <label class="radio-option selected" data-mode="add">
+                                    <input type="radio" name="importMode" value="add" checked>
+                                    <div>
+                                        <strong>既存データに追加</strong>
+                                        <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                                            現在のデータを保持して、新しいデータを追加します
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="radio-option" data-mode="replace">
+                                    <input type="radio" name="importMode" value="replace">
+                                    <div>
+                                        <strong>既存データを上書き</strong>
+                                        <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">
+                                            現在のデータを削除して、新しいデータに置き換えます
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="modal-buttons">
+                                <button class="btn btn-secondary" data-action="cancel">キャンセル</button>
+                                <button class="btn btn-primary" data-action="confirm">実行</button>
+                            </div>
+                        `;
+
+                        const handleClose = (result) => {
+                            this.modalManager.closeModal(modal.overlay);
+                            resolve(result);
+                        };
+
+                        modal.content.addEventListener('click', (e) => {
+                            if (e.target.closest('.radio-option')) {
+                                const option = e.target.closest('.radio-option');
+                                const radio = option.querySelector('input[type="radio"]');
+                                
+                                modal.content.querySelectorAll('.radio-option').forEach(opt => {
+                                    opt.classList.remove('selected');
+                                    opt.querySelector('input').checked = false;
+                                });
+                                
+                                option.classList.add('selected');
+                                radio.checked = true;
+                            }
+                            
+                            if (e.target.dataset.action === 'confirm') {
+                                const selectedMode = modal.content.querySelector('input[name="importMode"]:checked').value;
+                                handleClose(selectedMode);
+                            } else if (e.target.dataset.action === 'cancel') {
+                                handleClose(null);
+                            }
+                        });
+
+                        modal.overlay.addEventListener('click', (e) => {
+                            if (e.target === modal.overlay) {
+                                handleClose(null);
+                            }
+                        });
+
+                        modal.escHandler = (e) => {
+                            if (e.key === 'Escape') {
+                                handleClose(null);
+                            }
+                        };
+                        document.addEventListener('keydown', modal.escHandler);
+
+                        this.modalManager.showModal(modal.overlay);
+                    });
+                }
+
+                showLoading(message = '処理中...') {
+                    const existing = document.querySelector(`.${CONSTANTS.CSS_CLASSES.LOADING_SPINNER}`);
+                    if (existing) {
+                        existing.remove();
+                    }
+
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.className = CONSTANTS.CSS_CLASSES.LOADING_SPINNER;
+                    loadingDiv.setAttribute('role', 'status');
+                    loadingDiv.setAttribute('aria-live', 'polite');
+                    loadingDiv.innerHTML = `
+                        <div class="spinner"></div>
+                        <div>${message}</div>
+                        <span class="sr-only">${message}</span>
+                    `;
+                    
+                    document.body.appendChild(loadingDiv);
+                    return loadingDiv;
+                }
+
+                hideLoading() {
+                    const loading = document.querySelector(`.${CONSTANTS.CSS_CLASSES.LOADING_SPINNER}`);
+                    if (loading) {
+                        loading.remove();
+                    }
+                }
+            }
+
+            // カテゴリ管理UI専用クラス
+            class CategoryManagerUI {
+                constructor(dataManager, modal, uiManager) {
+                    this.dataManager = dataManager;
+                    this.modal = modal;
+                    this.uiManager = uiManager;
+                }
+
+                render() {
+                    this.modal.content.innerHTML = `
+                        <h2 class="modal-title"><span aria-hidden="true">⚙️</span> カテゴリ管理</h2>
+                        
+                        <div class="modal-section">
+                            <h3><span aria-hidden="true">💰</span> 収入カテゴリ</h3>
+                            <div id="incomeCategories"></div>
+                            <div class="form-inline">
+                                <input type="text" id="newIncomeCategory" placeholder="新しい収入カテゴリ">
+                                <button class="btn btn-success" data-action="add-income">追加</button>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-section expense">
+                            <h3><span aria-hidden="true">💸</span> 支出カテゴリ</h3>
+                            <div id="expenseCategories"></div>
+                            <div class="form-inline">
+                                <input type="text" id="newExpenseCategory" placeholder="新しい支出カテゴリ">
+                                <button class="btn btn-warning" data-action="add-expense">追加</button>
+                            </div>
+                        </div>
+                        
+                        <div class="modal-buttons">
+                            <button class="btn btn-primary" data-action="close">完了</button>
+                        </div>
+                    `;
+
+                    this.setupEventListeners();
+                    this.updateCategoryList();
+                }
+
+                setupEventListeners() {
+                    this.modal.content.addEventListener('click', async (e) => {
+                        const action = e.target.dataset.action;
+                        
+                        if (action === 'add-income') {
+                            await this.handleAddCategory(CONSTANTS.TRANSACTION_TYPES.INCOME);
+                        } else if (action === 'add-expense') {
+                            await this.handleAddCategory(CONSTANTS.TRANSACTION_TYPES.EXPENSE);
+                        } else if (action === 'close') {
+                            this.close();
+                        }
+                    });
+
+                    this.modal.content.addEventListener('keypress', async (e) => {
+                        if (e.key === 'Enter') {
+                            if (e.target.id === 'newIncomeCategory') {
+                                await this.handleAddCategory(CONSTANTS.TRANSACTION_TYPES.INCOME);
+                            } else if (e.target.id === 'newExpenseCategory') {
+                                await this.handleAddCategory(CONSTANTS.TRANSACTION_TYPES.EXPENSE);
+                            }
+                        }
+                    });
+
+                    this.modal.overlay.addEventListener('click', (e) => {
+                        if (e.target === this.modal.overlay) {
+                            this.close();
+                        }
+                    });
+
+                    this.modal.escHandler = (e) => {
+                        if (e.key === 'Escape') {
+                            this.close();
+                        }
+                    };
+                    document.addEventListener('keydown', this.modal.escHandler);
+                }
+
+                updateCategoryList() {
+                    const incomeDiv = document.getElementById('incomeCategories');
+                    const expenseDiv = document.getElementById('expenseCategories');
+                    
+                    if (incomeDiv) {
+                        incomeDiv.innerHTML = '';
+                        this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.INCOME].forEach(cat => {
+                            const element = this.createCategoryElement(CONSTANTS.TRANSACTION_TYPES.INCOME, cat);
+                            incomeDiv.appendChild(element);
+                        });
+                    }
+                    
+                    if (expenseDiv) {
+                        expenseDiv.innerHTML = '';
+                        this.dataManager.categories[CONSTANTS.TRANSACTION_TYPES.EXPENSE].forEach(cat => {
+                            const element = this.createCategoryElement(CONSTANTS.TRANSACTION_TYPES.EXPENSE, cat);
+                            expenseDiv.appendChild(element);
+                        });
+                    }
+                }
+
+                createCategoryElement(type, category) {
+                    const span = document.createElement('span');
+                    span.className = `category-item ${type}`;
+                    
+                    const textNode = document.createTextNode(category);
+                    span.appendChild(textNode);
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'category-remove';
+                    removeBtn.textContent = '×';
+                    removeBtn.title = '削除';
+                    removeBtn.setAttribute('aria-label', `${category}を削除`);
+                    removeBtn.addEventListener('click', () => this.handleRemoveCategory(type, category));
+                    
+                    span.appendChild(removeBtn);
+                    return span;
+                }
+
+                async handleAddCategory(type) {
+                    const input = document.getElementById(type === CONSTANTS.TRANSACTION_TYPES.INCOME ? 'newIncomeCategory' : 'newExpenseCategory');
+                    const newCategory = input.value.trim();
+                    
+                    try {
+                        this.dataManager.addCategory(type, newCategory);
+                        input.value = '';
+                        this.updateCategoryList();
+                    } catch (error) {
+                        this.uiManager.notificationManager.show(error.message, CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                    }
+                }
+
+                async handleRemoveCategory(type, category) {
+                    const relatedTransactions = this.dataManager.transactions.filter(t => 
+                        t.type === type && t.category === category
+                    );
+
+                    if (relatedTransactions.length > 0) {
+                        const replacementCategory = await this.showCategoryReplacementModal(type, category, relatedTransactions.length);
+                        if (!replacementCategory) return;
+
+                        try {
+                            const count = this.dataManager.removeCategory(type, category, replacementCategory);
+                            this.updateCategoryList();
+                            this.uiManager.notificationManager.show(
+                                `カテゴリ「${category}」を削除し、${count}件の取引を「${replacementCategory}」に変更しました`,
+                                CONSTANTS.NOTIFICATION_TYPES.SUCCESS
+                            );
+                        } catch (error) {
+                            this.uiManager.notificationManager.show(error.message, CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                        }
+                    } else {
+                        const confirmed = await this.uiManager.modalManager.showConfirm(
+                            'カテゴリを削除',
+                            `カテゴリ「${category}」を削除しますか？`,
+                            { confirmText: '削除' }
+                        );
+
+                        if (confirmed) {
+                            try {
+                                this.dataManager.removeCategory(type, category);
+                                this.updateCategoryList();
+                            } catch (error) {
+                                this.uiManager.notificationManager.show(error.message, CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                            }
+                        }
+                    }
+                }
+
+                async showCategoryReplacementModal(type, categoryToRemove, transactionCount) {
+                    return new Promise((resolve) => {
+                        const replacementModal = this.uiManager.modalManager.createModal();
+                        
+                        replacementModal.content.innerHTML = `
+                            <h2 class="modal-title"><span aria-hidden="true">⚠️</span> カテゴリの置き換え</h2>
+                            <p class="modal-text">
+                                カテゴリ「<strong>${categoryToRemove}</strong>」は${transactionCount}件の取引で使用されています。<br>
+                                削除する前に、これらの取引を別のカテゴリに変更してください。
+                            </p>
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; margin-bottom: 5px; font-weight: 600;">置き換え先のカテゴリ:</label>
+                                <select id="replacementCategory" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="">選択してください</option>
+                                    ${this.dataManager.categories[type]
+                                        .filter(cat => cat !== categoryToRemove)
+                                        .map(cat => `<option value="${cat}">${cat}</option>`)
+                                        .join('')}
+                                </select>
+                            </div>
+                            <div class="modal-buttons">
+                                <button class="btn btn-secondary" data-action="cancel">キャンセル</button>
+                                <button class="btn btn-primary" data-action="confirm">変更して削除</button>
+                            </div>
+                        `;
+
+                        const handleClose = (result) => {
+                            this.uiManager.modalManager.closeModal(replacementModal.overlay);
+                            resolve(result);
+                        };
+
+                        replacementModal.content.addEventListener('click', (e) => {
+                            if (e.target.dataset.action === 'confirm') {
+                                const replacement = document.getElementById('replacementCategory').value;
+                                if (replacement) {
+                                    handleClose(replacement);
+                                } else {
+                                    this.uiManager.notificationManager.show('置き換え先のカテゴリを選択してください', CONSTANTS.NOTIFICATION_TYPES.ERROR);
+                                }
+                            } else if (e.target.dataset.action === 'cancel') {
+                                handleClose(null);
+                            }
+                        });
+
+                        replacementModal.overlay.addEventListener('click', (e) => {
+                            if (e.target === replacementModal.overlay) {
+                                handleClose(null);
+                            }
+                        });
+
+                        replacementModal.escHandler = (e) => {
+                            if (e.key === 'Escape') {
+                                handleClose(null);
+                            }
+                        };
+                        document.addEventListener('keydown', replacementModal.escHandler);
+
+                        this.uiManager.modalManager.showModal(replacementModal.overlay);
+                    });
+                }
+
+                close() {
+                    this.uiManager.modalManager.closeModal(this.modal.overlay);
+                    this.dataManager.saveSettings();
+                }
+            }
+
+            // 日付解析クラス（改善版）
+            class DateParser {
+                static SUPPORTED_FORMATS = [
+                    { pattern: /^\d{4}-\d{2}-\d{2}$/, name: 'YYYY-MM-DD', example: '2025-01-15' },
+                    { pattern: /^\d{4}\/\d{1,2}\/\d{1,2}$/, name: 'YYYY/MM/DD', example: '2025/1/15' },
+                    { pattern: /^\d{2}\/\d{1,2}\/\d{1,2}$/, name: 'YY/MM/DD', example: '25/1/15' },
+                    { pattern: /^\d{4}年\d{1,2}月\d{1,2}日$/, name: 'YYYY年MM月DD日', example: '2025年1月15日' }
+                ];
+
+                static formatDateForInput(dateValue) {
+                    if (!dateValue) return '';
+                    
+                    try {
+                        let date;
+                        
+                        // Excel シリアル値の処理
+                        if (typeof dateValue === 'number' && dateValue > 1 && dateValue < 100000) {
+                            // Excel の基準日は1900年1月1日（ただし1900年2月28日以前は1日ずれる）
+                            const excelEpoch = new Date(1899, 11, 30);
+                            const daysOffset = dateValue > 59 ? dateValue : dateValue - 1; // 1900年の閏年バグ対応
+                            date = new Date(excelEpoch.getTime() + daysOffset * 86400 * 1000);
+                        } else if (typeof dateValue === 'string') {
+                            const dateStr = dateValue.trim();
+                            
+                            // YYYY-MM-DD形式
+                            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                                const [year, month, day] = dateStr.split('-').map(Number);
+                                date = new Date(year, month - 1, day);
+                            }
+                            // YYYY/MM/DD形式
+                            else if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(dateStr)) {
+                                const [year, month, day] = dateStr.split('/').map(Number);
+                                date = new Date(year, month - 1, day);
+                            }
+                            // YY/MM/DD形式
+                            else if (/^\d{2}\/\d{1,2}\/\d{1,2}$/.test(dateStr)) {
+                                const [year, month, day] = dateStr.split('/').map(Number);
+                                const fullYear = year + (year < 50 ? 2000 : 1900);
+                                date = new Date(fullYear, month - 1, day);
+                            }
+                            // YYYY年MM月DD日形式
+                            else if (/^\d{4}年\d{1,2}月\d{1,2}日$/.test(dateStr)) {
+                                const matches = dateStr.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/);
+                                if (matches) {
+                                    const [, year, month, day] = matches.map(Number);
+                                    date = new Date(year, month - 1, day);
+                                }
+                            }
+                            // ISO 8601形式をサポート
+                            else if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+                                date = new Date(dateStr);
+                            }
+                            else {
+                                // 最後の手段として Date コンストラクタに任せる
+                                date = new Date(dateStr);
+                            }
+                        } else if (dateValue instanceof Date) {
+                            date = new Date(dateValue);
+                        } else {
+                            return '';
+                        }
+
+                        if (isNaN(date.getTime())) {
+                            console.warn(`無効な日付: ${dateValue}`);
+                            return '';
+                        }
+
+                        const year = date.getFullYear();
+                        if (year < 1900 || year > 2100) {
+                            console.warn(`日付が範囲外: ${year}年`);
+                            return '';
+                        }
+
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const day = String(date.getDate()).padStart(2, '0');
+                        return `${year}-${month}-${day}`;
+                        
+                    } catch (error) {
+                        console.error('日付変換エラー:', error, dateValue);
+                        return '';
+                    }
+                }
+
+                static getSupportedFormatsDescription() {
+                    return this.SUPPORTED_FORMATS
+                        .map(f => `${f.name} (例: ${f.example})`)
+                        .join('、');
+                }
+            }
+
+            // アプリケーション初期化（IndexedDB対応）
+            class App {
+                constructor() {
+                    this.dataManager = new HouseholdBudgetData();
+                    this.uiManager = new UIManager(this.dataManager);
+                    this.init();
+                }
+
+                async init() {
+                    try {
+                        // ローディング表示
+                        this.uiManager.showLoading('データを読み込んでいます...');
+                        
+                        // データマネージャーを初期化（IndexedDB）
+                        await this.dataManager.init();
+                        
+                        // 今日の日付を設定
+                        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+                        
+                        // カテゴリの初期化
+                        this.uiManager.updateCategoryOptions();
+                        this.uiManager.updateFilterCategoryOptions();
+                        
+                        // フィルタの復元
+                        setTimeout(() => {
+                            document.getElementById('filterType').value = this.dataManager.filters.type || '';
+                            document.getElementById('filterCategory').value = this.dataManager.filters.category || '';
+                            document.getElementById('filterMonth').value = this.dataManager.filters.month || '';
+                            this.uiManager.handleFilterChange();
+                        }, 100);
+                        
+                        // ローディング非表示
+                        this.uiManager.hideLoading();
+                        
+                        // 起動時メッセージ
+                        if (this.dataManager.transactions.length > 0) {
+                            console.log(`${this.dataManager.transactions.length}件の取引データを読み込みました`);
+                            this.uiManager.notificationManager.show(
+                                `${this.dataManager.transactions.length}件のデータを読み込みました`,
+                                CONSTANTS.NOTIFICATION_TYPES.INFO,
+                                2000
+                            );
+                        }
+                        
+                        // IndexedDB利用可能メッセージ
+                        if (this.dataManager.isInitialized && this.dataManager.dbManager.db) {
+                            console.log('IndexedDBを使用してデータを管理しています');
+                        }
+                        
+                    } catch (error) {
+                        console.error('初期化エラー:', error);
+                        this.uiManager.hideLoading();
+                        this.uiManager.notificationManager.show(
+                            'アプリケーションの初期化に失敗しました',
+                            CONSTANTS.NOTIFICATION_TYPES.ERROR
+                        );
+                    }
+                }
+            }
+
+            // アプリケーションを起動
+            document.addEventListener('DOMContentLoaded', () => {
+                new App();
+            });
+        })();
+    </script>
+</body>
+</html>
