@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="シンプルで使いやすい家計簿アプリ">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline';">
+    <title>家計簿アプリ</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/components.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="assets/icons/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><span aria-hidden="true">💰</span> 家計簿アプリ</h1>
+            <p>収入と支出を簡単管理</p>
+        </header>
+
+        <div class="file-controls">
+            <button id="exportExcelBtn" class="btn btn-success"><span aria-hidden="true">📊</span> Excelエクスポート</button>
+            <button id="importExcelBtn" class="btn btn-primary"><span aria-hidden="true">📊</span> Excelインポート</button>
+            <button id="exportJsonBtn" class="btn btn-success"><span aria-hidden="true">📥</span> JSONエクスポート</button>
+            <button id="importJsonBtn" class="btn btn-primary"><span aria-hidden="true">📤</span> JSONインポート</button>
+            <button id="clearDataBtn" class="btn btn-warning"><span aria-hidden="true">🗑️</span> 全データクリア</button>
+            <button id="storageInfoBtn" class="btn btn-gradient-orange"><span aria-hidden="true">💾</span> ストレージ情報</button>
+            <button id="restoreBackupBtn" class="btn btn-gradient-pink"><span aria-hidden="true">🔄</span> バックアップ復元</button>
+            <input type="file" id="fileInput" accept=".json" aria-label="JSONファイル選択">
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls" aria-label="Excelファイル選択">
+        </div>
+
+        <main class="main-content">
+            <div class="form-section">
+                <h2>新しい取引を追加</h2>
+                <form id="transactionForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="date">日付</label>
+                            <input type="date" id="date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="type">種類</label>
+                            <select id="type" required>
+                                <option value="">選択してください</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">カテゴリ</label>
+                            <select id="category" required>
+                                <option value="">選択してください</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="amount">金額</label>
+                            <input type="number" id="amount" required min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="description">説明</label>
+                            <input type="text" id="description" placeholder="説明を入力してください">
+                        </div>
+                        <div class="form-group form-group-aligned-end">
+                            <button type="button" id="categoryManagerBtn" class="btn btn-gradient-teal full-width-btn margin-right-10"><span aria-hidden="true">⚙️</span> カテゴリ管理</button>
+                        </div>
+                        <div class="form-group form-group-aligned-end">
+                            <button type="submit" class="btn btn-primary full-width-btn"><span aria-hidden="true">✅</span> 追加</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="summary-cards">
+                <div class="summary-card income">
+                    <h3>総収入</h3>
+                    <div class="amount" id="totalIncome">¥0</div>
+                </div>
+                <div class="summary-card expense">
+                    <h3>総支出</h3>
+                    <div class="amount" id="totalExpense">¥0</div>
+                </div>
+                <div class="summary-card balance">
+                    <h3>残高</h3>
+                    <div class="amount" id="balance">¥0</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <h2><span aria-hidden="true">📊</span> 月別収支グラフ</h2>
+                <div class="chart-controls">
+                    <button id="chartPrevBtn" class="btn btn-gradient-purple">← 前の期間</button>
+                    <button id="chartCurrentBtn" class="btn btn-gradient-purple">今月を表示</button>
+                    <button id="chartNextBtn" class="btn btn-gradient-purple">次の期間 →</button>
+                    <select id="chartRange" class="btn btn-gradient-purple" style="padding: 10px 20px;">
+                        <option value="6">過去6ヶ月</option>
+                        <option value="12" selected>過去12ヶ月</option>
+                        <option value="24">過去24ヶ月</option>
+                        <option value="all">全期間</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="monthlyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="transactions-section">
+                <div class="transactions-header">
+                    <h2>取引履歴</h2>
+                    <div class="filter-controls">
+                        <div class="form-group">
+                            <label for="filterType">種類でフィルタ</label>
+                            <select id="filterType">
+                                <option value="">すべて</option>
+                                <option value="income">収入</option>
+                                <option value="expense">支出</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterCategory">カテゴリでフィルタ</label>
+                            <select id="filterCategory">
+                                <option value="">すべて</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="filterMonth">月でフィルタ</label>
+                            <input type="month" id="filterMonth">
+                        </div>
+                    </div>
+                </div>
+                <div class="transactions-table" role="region" aria-label="取引履歴一覧">
+                    <table id="transactionsTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">日付</th>
+                                <th scope="col">種類</th>
+                                <th scope="col">カテゴリ</th>
+                                <th scope="col">説明</th>
+                                <th scope="col">金額</th>
+                                <th scope="col">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsBody">
+                        </tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-state-icon" aria-hidden="true">📊</div>
+                        <h3>まだ取引がありません</h3>
+                        <p>上のフォームから最初の取引を追加してください</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 外部ライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- アプリケーションスクリプト -->
+    <script type="module" src="assets/js/constants.js"></script>
+    <script type="module" src="assets/js/utils/sanitizer.js"></script>
+    <script type="module" src="assets/js/utils/debounce.js"></script>
+    <script type="module" src="assets/js/utils/dateParser.js"></script>
+    <script type="module" src="assets/js/data/eventEmitter.js"></script>
+    <script type="module" src="assets/js/data/indexedDBManager.js"></script>
+    <script type="module" src="assets/js/data/dataManager.js"></script>
+    <script type="module" src="assets/js/ui/modalManager.js"></script>
+    <script type="module" src="assets/js/ui/notificationManager.js"></script>
+    <script type="module" src="assets/js/ui/categoryManagerUI.js"></script>
+    <script type="module" src="assets/js/chart/chartManager.js"></script>
+    <script type="module" src="assets/js/file/fileHandler.js"></script>
+    <script type="module" src="assets/js/ui/uiManager.js"></script>
+    <script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
