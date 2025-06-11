@@ -1,0 +1,273 @@
+/* レスポンシブデザイン */
+
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 10px;
+    }
+
+    .header {
+        padding: 20px;
+    }
+
+    .header h1 {
+        font-size: 2em;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+
+    .file-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        height: 300px;
+        padding: 10px;
+    }
+
+    .chart-controls {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-controls {
+        grid-template-columns: 1fr;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 10px 8px;
+    }
+
+    .modal-content {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    .form-inline {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .radio-option {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.8em;
+    }
+
+    .main-content {
+        padding: 15px;
+    }
+
+    .summary-card {
+        padding: 20px;
+    }
+
+    .summary-card .amount {
+        font-size: 1.5em;
+    }
+
+    .form-section {
+        padding: 20px;
+    }
+
+    .chart-container {
+        height: 250px;
+        padding: 5px;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .transactions-header {
+        padding: 15px;
+    }
+
+    th, td {
+        padding: 8px 6px;
+        font-size: 12px;
+    }
+
+    .notification {
+        right: 10px;
+        left: 10px;
+        transform: translateY(-100px);
+    }
+
+    .notification.show {
+        transform: translateY(0);
+    }
+}
+
+/* タブレット向け調整 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        margin: 15px;
+    }
+
+    .form-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .chart-controls {
+        justify-content: center;
+    }
+}
+
+/* 大画面向け調整 */
+@media (min-width: 1400px) {
+    .container {
+        max-width: 1400px;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-row {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+/* プリント用スタイル */
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .container {
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .file-controls,
+    .btn,
+    .chart-controls,
+    .delete-btn {
+        display: none !important;
+    }
+
+    .header {
+        background: #f8f9fa !important;
+        color: black !important;
+    }
+
+    .chart-container {
+        break-inside: avoid;
+    }
+
+    .transactions-table {
+        break-inside: avoid;
+    }
+
+    th {
+        background: #f8f9fa !important;
+    }
+}
+
+/* ダークモード対応（ユーザー設定に応じて） */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+
+    .container {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+
+    .form-section,
+    .chart-section,
+    .transactions-header {
+        background: #34495e;
+        border-color: #4a5f7a;
+    }
+
+    .form-group input,
+    .form-group select {
+        background: #34495e;
+        border-color: #4a5f7a;
+        color: #ecf0f1;
+    }
+
+    .summary-card {
+        background: #34495e;
+        border-color: #4a5f7a;
+    }
+
+    th {
+        background: #34495e;
+        color: #ecf0f1;
+    }
+
+    tr:hover {
+        background: #3a4a5c;
+    }
+
+    .modal-content {
+        background: #2c3e50;
+        color: #ecf0f1;
+    }
+
+    .category-item {
+        background: #3a4a5c;
+        border-color: #4a5f7a;
+    }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid currentColor;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-width: 3px;
+        box-shadow: 0 0 0 3px currentColor;
+    }
+
+    .summary-card {
+        border-width: 3px;
+    }
+}
+
+/* アニメーション削減設定対応 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
